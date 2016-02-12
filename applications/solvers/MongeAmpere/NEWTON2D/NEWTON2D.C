@@ -102,17 +102,36 @@ int main(int argc, char *argv[])
         // transfer the gradient to the computational mesh
         sngradc_m.internalField() = sngradc_mR.internalField();
 
+        // calculate the laplacian of c_m in physical space
+        lapc_mR = fvc::laplacian(c_mR);
+        
+        // transfer the laplacian to the computational mesh
+        lapc_m.internalField() = lapc_mR.internalField();
 
+
+
+        dimensionedScalar sourceInt = fvc::domainIntegrate(- detHess + c_m
+                     + fvc::laplacian(matrixA, Phi)
+                     - Gamma*fvc::div(sngradc_m,Phi)
+                     + Gamma*(lapc_m*Phi));
+
+
+        
+        Info << "Dimension of Vtot = " << Vtot.dimensions() << endl;
+        sourceCorrection = sourceInt/Vtot;
+        Info << "sourceCorrection = " << sourceCorrection.value() << endl;
+        
         // Setup and solve the MA equation to find Phi(t+1) 
         fvScalarMatrix PhiEqn
         (
           - fvm::laplacian(matrixA, Phi)
           + Gamma*fvm::div(sngradc_m,Phi)
-          - Gamma*fvm::Sp(fvc::laplacian(c_m),Phi)
+          - Gamma*fvm::Sp(lapc_m,Phi)
           - detHess + c_m
           + fvc::laplacian(matrixA, Phi)
-          - Gamma*fvc::div(mesh.magSf()*fvc::snGrad(c_m),Phi)
-          + Gamma*(fvc::laplacian(c_m)*Phi)
+          - Gamma*fvc::div(sngradc_m,Phi)
+          + Gamma*(lapc_m*Phi)
+          - sourceCorrection
         );
         // Diagonal and off-diagonal components of the matrix
         scalarField diag = PhiEqn.diag();
@@ -126,8 +145,10 @@ int main(int argc, char *argv[])
         Info << "Non-dominance goes from " << min(nonDom) << " to "
              << max(nonDom) << endl;
         
+        Info << "PhiEqn.rhs = " << sum(PhiEqn.source()) << endl;
+
         // Solve the matrix and check for convergence
-        //PhiEqn.setReference(1650, scalar(0));
+        //PhiEqn.setReference(1700, scalar(0));
         PhiEqn.relax();
         solverPerformance sp = PhiEqn.solve();
         converged = sp.nIterations() <= 1;

@@ -147,3 +147,28 @@ surfaceScalarField sngradc_mR
     "calculated"
 );
 
+dimensionedScalar sourceInt = fvc::domainIntegrate(- detHess + c_m
+                     + fvc::laplacian(matrixA, Phi)
+                     - Gamma*fvc::div(sngradc_m,Phi)
+                     + Gamma*(fvc::laplacian(c_m)*Phi));
+Info << "dim sourceInt = " << sourceInt.dimensions() << endl;
+
+dimensionedScalar sourceCorrection = sourceInt/Vtot;
+Info << "dim sourceCorrection = " << sourceCorrection.dimensions() << endl;
+
+
+volScalarField lapc_mR
+(
+    IOobject("lapc_mR", runTime.timeName(), rMesh,
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    fvc::laplacian(c_mR),
+    "calculated"
+);
+
+volScalarField lapc_m
+(
+    IOobject("lapc_m", runTime.timeName(), mesh,
+             IOobject::NO_READ, IOobject::AUTO_WRITE),
+    fvc::laplacian(c_m),
+    "calculated"
+);

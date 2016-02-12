@@ -18,20 +18,31 @@ solvers
 {
     Phi
     {
-        solver smoothSolver;
+        solver PCG;
         smoother GaussSeidel;
         preconditioner   DILU;
         tolerance        1e-8;
         relTol           1e-4;
         maxIter          2000;
     };
+
+    // Phi
+    // {
+    //     solver smoothSolver;
+    //     smoother GaussSeidel;
+    //     preconditioner   DILU;
+    //     tolerance        1e-8;
+    //     relTol           1e-4;
+    //     maxIter          2000;
+    // };
+
 }
 
 relaxationFactors
 {
     equations
     {
-        Phi               0.999;
+        Phi               0.99;
     }
 }
 // ************************************************************************* //
