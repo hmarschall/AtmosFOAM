@@ -19,8 +19,8 @@ solvers
     Phi
     {
         solver PCG;
-        smoother GaussSeidel;
-        preconditioner   DILU;
+        smoother ;
+        preconditioner   diagonal;
         tolerance        1e-8;
         relTol           1e-4;
         maxIter          2000;

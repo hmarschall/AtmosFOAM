@@ -120,18 +120,32 @@ int main(int argc, char *argv[])
         Info << "Dimension of Vtot = " << Vtot.dimensions() << endl;
         sourceCorrection = sourceInt/Vtot;
         Info << "sourceCorrection = " << sourceCorrection.value() << endl;
+
+
+
+
+
+
+
+
+
+
         
         // Setup and solve the MA equation to find Phi(t+1) 
         fvScalarMatrix PhiEqn
         (
           - fvm::laplacian(matrixA, Phi)
-          + Gamma*fvm::div(sngradc_m,Phi)
-          - Gamma*fvm::Sp(lapc_m,Phi)
+          + fvm::laplacian(c_m, Phi)
+          - (fvm::laplacian(Phi),c_m)
+          //          + Gamma*fvm::div(sngradc_m,Phi)
+          //- Gamma*fvm::Sp(lapc_m,Phi)
           - detHess + c_m
           + fvc::laplacian(matrixA, Phi)
-          - Gamma*fvc::div(sngradc_m,Phi)
-          + Gamma*(lapc_m*Phi)
-          - sourceCorrection
+          - fvc::laplacian(c_m, Phi)
+          + (fvc::laplacian(Phi),c_m)
+          //- Gamma*fvc::div(sngradc_m,Phi)
+          //+ Gamma*(lapc_m*Phi)
+          //- sourceCorrection
         );
         // Diagonal and off-diagonal components of the matrix
         scalarField diag = PhiEqn.diag();

@@ -52,6 +52,7 @@ laplacianSchemes
     laplacian(matrixA,Psi) Gauss linear uncorrected;
     laplacian(matrixA,Phi) Gauss linear uncorrected;
     laplacian(sqr((1|deltaCoeffs)),monitorNew) Gauss linear uncorrected;
+    laplacian(c_m,Phi) Gauss linear uncorrected;
 }
 
 interpolationSchemes
